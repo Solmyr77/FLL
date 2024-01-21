@@ -156,6 +156,7 @@ body {
    padding-top: 2vh;
    padding-bottom: 2vh;
    background-color: #3f826b;
+   border-top: 2px solid black;
 }
 
 .footer-icons {
