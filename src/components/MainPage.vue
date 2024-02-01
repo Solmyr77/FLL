@@ -1,4 +1,6 @@
 <script>
+import axios from 'axios';
+
 class Video {
    constructor(videoData) {
       this.id = this.extractId(videoData.url);
@@ -50,15 +52,40 @@ export default {
             },
          ],
          videos: [],
+         userVisits: "0",
+         clientId: ""
       };
    },
    mounted() {
+      if (!localStorage.getItem("guid")) {
+         localStorage.setItem("guid", this.uuidv4())
+      }
+
       this.generateObjects();
+      this.trackUserVisit();
    },
    methods: {
+      async trackUserVisit() {
+         await axios.post("http://localhost:1234/track-visit", {
+            timestamp: new Date().toISOString(),
+            client: localStorage.getItem("guid"),
+         })
+            .then(response => {
+               this.userVisits = response.data.message;
+               console.log("Visit tracked");
+            })
+            .catch(error => {
+               console.log(`Error tracking: ${error}`);
+            })
+      },
       generateObjects() {
          this.videos = this.videoData.map((data) => new Video(data));
       },
+      uuidv4() {
+         return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+         );
+      }
    },
 };
 </script>
@@ -66,10 +93,14 @@ export default {
 <template>
    <!--Phone screen-->
    <div class="flex flex-col min-h-screen h-full w-full lg:hidden">
-      <div class="grid grid-rows-4 h-80 w-full bg-richblack text-platinum">
+      <div class="grid grid-rows-5 h-80 w-full bg-richblack text-platinum">
 
          <div class="flex justify-center items-center h-full w-full">
-               <p class="text-6xl">FLL</p>
+            <p class="text-6xl">FLL</p>
+         </div>
+
+         <div class="flex justify-center items-center h-full w-full">
+            <p class="text-2xl">Felhasználók: {{ this.userVisits }}</p>
          </div>
 
          <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
@@ -109,7 +140,7 @@ export default {
             </div>
          </div>
       </div>
-      
+
    </div>
 
    <!-- Normal screen -->
@@ -119,18 +150,22 @@ export default {
             <p class="text-5xl ml-6">FLL</p>
          </div>
 
-         <span class="col-span-6"></span>
+         <span class="col-span-4"></span>
 
          <div class="col-span-4 flex justify-center items-center">
             <div class="basis-1/3 flex justify-center items-center">
-               <a class="text-xl" href="#">Menüpont</a>
+               <a class="text-xl hover:text-stone-400" href="#">Menüpont</a>
             </div>
             <div class="basis-1/3 flex justify-center items-center">
-               <a class="text-xl" href="#">Menüpont</a>
+               <a class="text-xl hover:text-stone-400" href="#">Menüpont</a>
             </div>
             <div class="basis-1/3 flex justify-center items-center">
-               <a class="text-xl" href="#">Menüpont</a>
+               <a class="text-xl hover:text-stone-400" href="#">Menüpont</a>
             </div>
+         </div>
+
+         <div class="col-span-2 flex justify-center items-center">
+            <p class="text-2xl">Felhasználók: {{ this.userVisits }}</p>
          </div>
       </div>
 
