@@ -38,6 +38,10 @@
    height: 90%;
 }
 
+.max-h-90p {
+   max-height: 90%;
+}
+
 .w-93p {
    width: 93%;
 }

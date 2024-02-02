@@ -3,6 +3,7 @@ import axios from "axios";
 
 class Video {
    constructor(videoData) {
+      this.url = videoData.url;
       this.id = this.extractId(videoData.url);
       this.videoUrl = `https://www.youtube.com/embed/${this.id}`;
       this.title = videoData.title;
@@ -19,12 +20,30 @@ class Video {
    }
 }
 
+class Image {
+   constructor(imageData) {
+      this.id = this.extractId(imageData.url);
+      this.videoUrl = `https://www.youtube.com/embed/${this.id}`;
+      this.url = imageData.url;
+      this.title = imageData.title;
+      this.description = imageData.description;
+      this.type = imageData.type;
+      this.category = imageData.category;
+   }
+
+   extractId(url) {
+      const urlParts = url.split("v=");
+      const idPart = urlParts[1];
+      return idPart ? idPart.split("&")[0] : "";
+   }
+}
+
 export default {
    data() {
       return {
          videoData: [
             {
-               url: "karbiszet1.mp4",
+               url: "https://solmyr77.github.io/FLL/src/assets/videos/karbiszet1.mp4",
                title: "Karburátor szétszerelés",
                description: "1. rész",
                category: "service",
@@ -60,7 +79,7 @@ export default {
                type: "youtube",
             },
             {
-               url: "karbiossze1.mp4",
+               url: "https://solmyr77.github.io/FLL/src/assets/videos/karbiossze1.mp4",
                title: "Karburátor összeszerelés",
                description: "1. rész",
                category: "service",
@@ -75,7 +94,7 @@ export default {
                type: "youtube",
             },
             {
-               url: "karbiszet1.mp4",
+               url: "https://solmyr77.github.io/FLL/src/assets/videos/karbiossze3.mp4",
                title: "Karburátor összeszerelés",
                description: "3. rész",
                category: "service",
@@ -118,7 +137,52 @@ export default {
                type: "youtube",
             },
          ],
+         imageData: [
+            {
+               url: "https://lh3.googleusercontent.com/u/0/drive-viewer/AEYmBYQ4v1QWGiTopjdrtWuht0ob7dF4RpzytBet2rQvmPSfArO4FPC9I9R5H2w0zdn0FJS7Se4vxxuG2jI3eMktSda_s8QmWw=w1920-h938",
+               title: "",
+               description: "",
+               category: "visit",
+               type: "image",
+            },
+            {
+               url: "https://www.youtube.com/watch?v=9-EnALiMLog",
+               title: "Látogatás",
+               description: "1. rész",
+               category: "visit",
+               type: "youtube",
+            },
+            {
+               url: "https://www.youtube.com/watch?v=6grajJ9a6Wc",
+               title: "Látogatás",
+               description: "2. rész",
+               category: "visit",
+               type: "youtube",
+            },
+            {
+               url: "https://www.youtube.com/watch?v=YuBBH-D0cF4",
+               title: "Látogatás",
+               description: "3. rész",
+               category: "visit",
+               type: "youtube",
+            },
+            {
+               url: "https://www.youtube.com/watch?v=wL9J28pMJZ0",
+               title: "Látogatás",
+               description: "4. rész",
+               category: "visit",
+               type: "youtube",
+            },
+            {
+               url: "https://www.youtube.com/watch?v=0rptrY7xHLY",
+               title: "Látogatás",
+               description: "5. rész",
+               category: "visit",
+               type: "youtube",
+            },
+         ],
          videos: [],
+         images: [],
          userVisits: "0",
          clientId: "",
          selectedCategory: "all",
@@ -131,7 +195,8 @@ export default {
 
       localStorage.setItem("guid", this.uuidv4());
 
-      this.generateObjects();
+      this.generateObjectsVideo();
+      this.generateObjectsImage();
       this.trackUserVisit();
    },
    computed: {
@@ -141,6 +206,14 @@ export default {
          }
          return this.videos.filter((video) => video.category === this.selectedCategory);
       },
+      filteredImages() {
+         if (this.selectedCategory === "rebuker") {
+            return this.images.filter((video) => video.type === "youtube");
+         }
+         else if (this.selectedCategory === "images") {
+            return this.images.filter((video) => video.type === "image");
+         }
+      }
    },
    methods: {
       async trackUserVisit() {
@@ -157,8 +230,12 @@ export default {
                console.log(`Error tracking: ${error}`);
             });
       },
-      generateObjects() {
+      generateObjectsVideo() {
          this.videos = this.videoData.map((data) => new Video(data));
+      },
+      generateObjectsImage() {
+         this.images = this.imageData.map((data) => new Image(data));
+         console.log(this.images)
       },
       uuidv4() {
          return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16));
@@ -170,24 +247,33 @@ export default {
 <template>
    <!--Phone screen-->
    <div class="flex flex-col min-h-screen h-full w-full lg:hidden">
-      <div class="grid grid-rows-4 h-80 w-full bg-richblack text-platinum">
+      <div class="grid grid-rows-6 h-80 w-full bg-richblack text-platinum">
          <div class="flex justify-center items-center h-full w-full">
-            <p class="text-6xl">FLL</p>
+            <!--<p class="text-6xl">First Lego League - Innovációs projekt</p>-->
+            <img src="https://coderina.org/wp-content/uploads/2023/08/FIRST-Lego-League-MASTERPIECE.png" class="w-60 h-12" @click='selectedCategory = "all"'>
          </div>
 
          <div class="flex justify-center items-center h-full w-full">
-            <p class="text-2xl">Látogatások: {{ this.userVisits }}</p>
+            <p class="text-2xl">Látogatások: 470</p>
          </div>
 
          <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
-            <a class="text-2xl cursor-pointer" @click='selectedCategory = "service"; console.log(selectedCategory)'>Szerelés</a>
+            <a class="text-2xl cursor-pointer" @click='selectedCategory = "service"'>Szerelés</a>
          </div>
          <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
-            <a class="text-2xl cursor-pointer" @click='selectedCategory = "test"; console.log(selectedCategory)'>Teszt</a>
+            <a class="text-2xl cursor-pointer" @click='selectedCategory = "test"'>Teszt</a>
+         </div>
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
+            <a class="text-2xl cursor-pointer" @click='selectedCategory = "rebuker"'>Rebuker Kft</a>
+         </div>
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
+            <a class="text-2xl cursor-pointer" @click='selectedCategory = "images"'>Képek</a>
          </div>
       </div>
 
       <div class="flex flex-wrap flex-grow overflow-y-auto w-full h-full bg-oxfordblue">
+         <template v-if="selectedCategory == 'service' || selectedCategory == 'test' || selectedCategory == 'all'">
+
          <div v-for="video in filteredVideos" class="flex flex-col w-full h-auto video-card items-center mt-5">
             <div class="flex flex-col justify-center items-center w-95p h-95p bg-yinblue rounded-3xl">
                <div v-if="video.type == 'youtube'" class="flex justify-center items-center h-full w-full basis-3/4">
@@ -195,7 +281,8 @@ export default {
                </div>
 
                <div v-else class="flex justify-center items-center h-full w-full basis-3/4">
-                  <video class="w-93p h-90p rounded-3xl" :src="`src/assets/videos/${video.localVideoUrl}`" controls></video>
+                  <video class="w-93p h-90p rounded-3xl" :src="video.url"
+                     controls></video>
                </div>
 
                <div class="flex justify-center items-center h-full w-full basis-1/4">
@@ -215,64 +302,151 @@ export default {
                </div>
             </div>
          </div>
-      </div>
-   </div>
+      </template>
 
-   <!-- Normal screen -->
-   <div class="hidden lg:flex flex-col min-h-screen h-full w-full lg:visible">
-      <div class="grid grid-cols-12 h-16 w-full bg-richblack text-platinum">
-         <div class="col-span-2 flex justify-start items-center">
-            <p class="text-5xl ml-6">FLL</p>
-         </div>
-
-         <span class="col-span-4"></span>
-
-         <div class="col-span-4 flex justify-end items-center">
-            <div class="basis-1/3 flex justify-center items-center">
-               <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "service"; console.log(selectedCategory)'>Szerelés</a>
-            </div>
-            <div class="basis-1/3 flex justify-center items-center">
-               <a
-                  class="text-xl hover:text-stone-400 cursor-pointer"
-                  @click='selectedCategory = "test"; console.log(selectedCategory)'
-                  >Teszt</a
-               >
-            </div>
-         </div>
-
-         <div class="col-span-2 flex justify-center items-center">
-            <p class="text-2xl">Látogatások: {{ this.userVisits }}</p>
-         </div>
-      </div>
-
-      <div class="flex flex-wrap flex-grow overflow-y-auto w-full h-full bg-oxfordblue">
-         <div v-for="video in filteredVideos" class="flex flex-col w-1/3 h-auto video-card items-center mt-5">
+      <template v-else-if="selectedCategory == 'rebuker'">
+         <div v-for="image in filteredImages" class="flex flex-col w-full h-auto video-card items-center mt-5">
             <div class="flex flex-col justify-center items-center w-95p h-95p bg-yinblue rounded-3xl">
-               <div v-if="video.type == 'youtube'" class="flex justify-center items-center h-full w-full basis-3/4">
-                  <iframe class="w-93p h-90p rounded-3xl" :src="video.videoUrl"></iframe>
-               </div>
-
-               <div v-else-if="video.type == 'video'" class="flex justify-center items-center h-full w-full basis-3/4">
-                  <video class="w-93p h-90p rounded-3xl object-fill" :src="`src/assets/videos/${video.localVideoUrl}`" controls></video>
+               <div class="flex justify-center items-center h-full w-full basis-3/4">
+                  <iframe class="w-93p h-90p rounded-3xl" :src="image.videoUrl"></iframe> 
                </div>
 
                <div class="flex justify-center items-center h-full w-full basis-1/4">
                   <div class="flex flex-col justify-center items-center rounded-3xl bg-silverlakeblue h-90p w-93p mb-5">
                      <div class="flex justify-center items-center mb-1">
-                        <p class="text-3xl text-center">
-                           {{ video.title }}
+                        <p class="text-2xl text-center">
+                           {{ image.title }}
                         </p>
                      </div>
 
                      <div class="flex justify-center items-center">
                         <p class="text-xl text-center">
-                           {{ video.description }}
+                           {{ image.description }}
                         </p>
                      </div>
                   </div>
                </div>
             </div>
          </div>
+      </template>
+
+      <template v-else-if="selectedCategory == 'images'">
+         <div v-for="image in filteredImages" class="flex flex-col w-full h-auto video-card items-center mt-5">
+            <div class="flex flex-col justify-center items-center w-95p h-95p bg-yinblue rounded-3xl">
+               
+               <div class="flex justify-center items-center h-full w-full basis-3/4">
+                  <img class="w-93p h-90p rounded-3xl" :src="image.url">
+               </div>
+               
+            </div>
+         </div>
+      </template>
+
+      </div>
+   </div>
+
+   <!-- Normal screen -->
+   <div class="hidden lg:flex flex-col min-h-screen h-full w-full lg:visible">
+      <div class="grid grid-cols-12 h-16 w-full bg-richblack text-platinum">
+         <div class="col-span-5 flex justify-start items-center">
+            <!--<p class="text-2xl ml-6">First Lego League - Innovációs projekt</p>-->
+            <img src="https://coderina.org/wp-content/uploads/2023/08/FIRST-Lego-League-MASTERPIECE.png"
+               class="w-60 h-12 ml-4 cursor-pointer" @click='selectedCategory = "all"'>
+         </div>
+
+         <div class="col-span-5 flex justify-end items-center">
+            <div class="basis-1/4 flex justify-center items-center">
+               <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "service"'>Szerelés</a>
+            </div>
+            <div class="basis-1/4 flex justify-center items-center">
+               <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "test"'>Teszt</a>
+            </div>
+            <div class="basis-1/4 flex justify-center items-center">
+               <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "rebuker"; console.log(selectedCategory)'>Rebuker Kft</a>
+            </div>
+            <div class="basis-1/4 flex justify-center items-center">
+               <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "images"'>Képek</a>
+            </div>
+         </div>
+
+         <div class="col-span-2 flex justify-center items-center">
+            <p class="text-2xl">Látogatások: 470</p>
+         </div>
+      </div>
+
+      <div class="flex flex-wrap flex-grow overflow-y-auto w-full h-full bg-oxfordblue">
+
+         <template v-if="selectedCategory == 'service' || selectedCategory == 'test' || selectedCategory == 'all'">
+            <div v-for="video in filteredVideos" class="flex flex-col w-1/3 h-auto video-card items-center mt-5">
+               <div class="flex flex-col justify-center items-center w-95p h-95p bg-yinblue rounded-3xl">
+                  <div v-if="video.type == 'youtube'" class="flex justify-center items-center h-full w-full basis-3/4">
+                     <iframe class="w-93p h-90p rounded-3xl" :src="video.videoUrl"></iframe>
+                  </div>
+
+                  <div v-else-if="video.type == 'video'" class="flex justify-center items-center h-full w-full basis-3/4">
+                     <video class="w-93p h-90p rounded-3xl object-fill" :src="video.url"
+                        controls></video>
+                  </div>
+
+                  <div class="flex justify-center items-center h-full w-full basis-1/4">
+                     <div class="flex flex-col justify-center items-center rounded-3xl bg-silverlakeblue h-90p w-93p mb-5">
+                        <div class="flex justify-center items-center mb-1">
+                           <p class="text-3xl text-center">
+                              {{ video.title }}
+                           </p>
+                        </div>
+
+                        <div class="flex justify-center items-center">
+                           <p class="text-xl text-center">
+                              {{ video.description }}
+                           </p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </template>
+
+         <template v-else-if="selectedCategory == 'rebuker'">
+            <div v-for="image in filteredImages" class="flex flex-col w-1/3 h-auto video-card items-center mt-5">
+               <div class="flex flex-col justify-center items-center w-95p h-95p bg-yinblue rounded-3xl">
+
+                  <div class="flex justify-center items-center h-full w-full basis-3/4">
+                     <iframe class="w-93p h-90p rounded-3xl" :src="image.videoUrl"></iframe>
+                  </div>
+
+                  <div class="flex justify-center items-center h-full w-full basis-1/4">
+                     <div class="flex flex-col justify-center items-center rounded-3xl bg-silverlakeblue h-90p w-93p mb-5">
+                        <div class="flex justify-center items-center mb-1">
+                           <p class="text-3xl text-center">
+                              {{ image.title }}
+                           </p>
+                        </div>
+
+                        <div class="flex justify-center items-center">
+                           <p class="text-xl text-center">
+                              {{ image.description }}
+                           </p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </template>
+         
+         <template v-else-if="selectedCategory == 'images'">
+            <div v-for="image in filteredImages" class="flex flex-col w-1/3 h-auto video-card items-center mt-5">
+               
+               <div class="flex flex-col justify-center items-center w-95p h-90p bg-yinblue rounded-3xl">
+
+                  <div class="flex justify-center items-center h-full w-full basis-3/4">
+                     <img class="w-93p rounded-3xl max-h-90p" :src="image.url">
+                  </div>
+
+               </div>
+            </div>
+         </template>
+
       </div>
    </div>
 </template>
