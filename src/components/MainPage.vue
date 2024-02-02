@@ -257,17 +257,17 @@ export default {
             <p class="text-2xl">Látogatások: 470</p>
          </div>
 
-         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
-            <a class="text-2xl cursor-pointer" @click='selectedCategory = "service"'>Szerelés</a>
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click='selectedCategory = "service"'>
+            <a class="text-2xl cursor-pointer pointer-events-none">Szerelés</a>
          </div>
-         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
-            <a class="text-2xl cursor-pointer" @click='selectedCategory = "test"'>Teszt</a>
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click='selectedCategory = "test"'>
+            <a class="text-2xl cursor-pointer pointer-events-none">Teszt</a>
          </div>
-         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
-            <a class="text-2xl cursor-pointer" @click='selectedCategory = "rebuker"'>Rebuker Kft</a>
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click='selectedCategory = "rebuker"'>
+            <a class="text-2xl cursor-pointer pointer-events-none">Rebuker Kft</a>
          </div>
-         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue">
-            <a class="text-2xl cursor-pointer" @click='selectedCategory = "images"'>Képek</a>
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click='selectedCategory = "images"'>
+            <a class="text-2xl cursor-pointer pointer-events-none">Képek</a>
          </div>
       </div>
 
@@ -362,7 +362,7 @@ export default {
                <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "test"'>Teszt</a>
             </div>
             <div class="basis-1/4 flex justify-center items-center">
-               <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "rebuker"; console.log(selectedCategory)'>Rebuker Kft</a>
+               <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "rebuker"'>Rebuker Kft</a>
             </div>
             <div class="basis-1/4 flex justify-center items-center">
                <a class="text-xl hover:text-stone-400 cursor-pointer" @click='selectedCategory = "images"'>Képek</a>
