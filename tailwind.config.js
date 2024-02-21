@@ -9,6 +9,8 @@ export default {
             yinblue: "#415a77",
             silverlakeblue: "#778da9",
             platinum: "#e0e1dd",
+            indigodye: "#2E4059",
+            frenchgrey: "#ACB7C3",
          },
       },
    },

@@ -1,5 +1,6 @@
 <script>
 import axios from "axios";
+import PocketBase from "pocketbase";
 
 class Video {
    constructor(videoData) {
@@ -38,9 +39,18 @@ class Image {
    }
 }
 
+class Comment {
+   constructor(userName, text) {
+      this.userName = userName;
+      this.text = text;
+   }
+}
+
 export default {
    data() {
       return {
+         pb: undefined,
+         comments: [],
          videoData: [
             {
                url: "https://github.com/Solmyr77/FLL/blob/main/src/assets/videos/karbiszet1.mp4?raw=true",
@@ -344,9 +354,11 @@ export default {
          ],
          videos: [],
          images: [],
-         userVisits: "483",
+         userVisits: "2380",
          clientId: "",
          selectedCategory: "all",
+         commentText: "",
+         nameInput: "",
       };
    },
    mounted() {
@@ -354,9 +366,17 @@ export default {
          localStorage.setItem("guid", this.uuidv4());
       }
 
+      this.pb = new PocketBase("http://sp.myddns.me:1235");
+      this.pb.autoCancellation(false);
+
+      this.collection = this.pb.collection("comments");
+      this.collection.subscribe("*", () => this.getComments());
+
       this.generateObjectsVideo();
       this.generateObjectsImage();
       this.trackUserVisit();
+
+      this.getComments();
    },
    computed: {
       filteredVideos() {
@@ -367,13 +387,31 @@ export default {
       },
       filteredImages() {
          if (this.selectedCategory === "rebuker") {
-            return this.images.filter((video) => (video.type === "youtube" || video.type === "video"));
+            return this.images.filter((video) => video.type === "youtube" || video.type === "video");
          } else if (this.selectedCategory === "images") {
             return this.images.filter((video) => video.type === "image");
          }
       },
    },
    methods: {
+      async getComments() {
+         this.comments = [];
+
+         const { items } = await this.collection.getList(1, 10000);
+
+         items.forEach((item) => {
+            this.comments.push(new Comment(item.username, item.text));
+         });
+      },
+      async sendComment() {
+         let text = this.commentText;
+         let username = this.nameInput;
+
+         this.commentText = "";
+         this.nameInput = "";
+
+         await this.collection.create({ username, text });
+      },
       async trackUserVisit() {
          await axios
             .post("http://sp.myddns.me:1234/track-visit", {
@@ -600,6 +638,51 @@ export default {
                </div>
             </div>
          </template>
+      </div>
+
+      <!--Comments area-->
+      <div class="flex justify-center items-center h-60 w-full bg-richblack">
+         <div class="flex justify-center items-center w-full h-90p">
+            <div class="flex justify-center items-center flex-col basis-1/3 w-full h-full">
+
+               <div class="flex justify-center items-center w-full h-full basis-1/4">
+                  <input placeholder="Név" class="w-95p rounded-tl-2xl rounded-tr-2xl h-full text-2xl px-2 bg-indigodye text-platinum" v-model="nameInput" type="text">
+               </div>
+
+               <div class="flex justify-center items-center w-full h-full basis-2/4">
+                  <textarea placeholder="Ide írd az üzenetet" v-model="commentText" class="w-95p resize-none bg-yinblue outline-none p-2 h-full text-platinum" name="commentTextBoxN" id="commentTextBox"></textarea>
+               </div>
+
+               <div class="flex justify-center items-center w-full h-full basis-1/4">
+                  <button @click="sendComment" class="w-95p h-full bg-indigodye hover:bg-slate-700 rounded-bl-2xl rounded-br-2xl text-2xl text-platinum flex items-center justify-center">Küldés</button>
+               </div>
+
+
+            </div>
+
+            <!--This is the problematic part-->
+            <div class="flex flex-col justify-center items-center basis-2/3 bg-silverlakeblue rounded-2xl h-full w-full mr-4">
+               <div class="w-full h-full flex justify-center items-center basis-1/4 bg-indigodye text-platinum rounded-tl-2xl rounded-tr-2xl">
+                  <h1 class="text-2xl">Amiket rólunk írtak</h1>
+               </div>
+
+               <div class="flex max-w-full flex-grow-0 h-full items-center justify-center basis-3/4 text-platinum overflow-x-auto flex-wrap">
+
+                  <div v-for="comment in comments" class="flex mx-2 flex-col justify-center items-center h-90p w-64 text-wrap bg-oxfordblue rounded-2xl p-2 flex-shrink-0">
+                     <div class="basis-5/6 flex justify-center items-center text-center">
+                        <h1>{{ comment.text }}</h1>
+                     </div>
+                     <div class="basis-1/6 flex items-center justify-end w-full h-full mr-6">
+                        <h1 class="italic">-{{ comment.userName }}</h1>
+                     </div>
+                  </div>
+
+               </div>
+
+            </div>
+            <!--This is the end of the problematic part-->
+
+         </div>
       </div>
    </div>
 </template>
