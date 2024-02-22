@@ -359,6 +359,8 @@ export default {
          selectedCategory: "all",
          commentText: "",
          nameInput: "",
+         tempComments: [],
+         outComments: [],
       };
    },
    mounted() {
@@ -396,16 +398,31 @@ export default {
    methods: {
       async getComments() {
          this.comments = [];
+         this.tempComments = [];
+         this.outComments = [];
 
          const { items } = await this.collection.getList(1, 10000);
 
          items.forEach((item) => {
             this.comments.push(new Comment(item.username, item.text));
          });
+
+         this.tempComments = this.comments.sort(() => 0.5 - Math.random())
+         this.outComments = this.tempComments.slice(0, 3);
+
+         setInterval(() => {
+            this.outComments = [];
+            this.tempComments = this.comments.sort(() => 0.5 - Math.random())
+            this.outComments = this.tempComments.slice(0, 3);
+         }, 6000)
       },
       async sendComment() {
          let text = this.commentText;
          let username = this.nameInput;
+
+         if (this.nameInput == "") {
+            username = "Névtelen";
+         }
 
          this.commentText = "";
          this.nameInput = "";
@@ -446,20 +463,23 @@ export default {
       <div class="grid grid-rows-6 h-80 w-full bg-richblack text-platinum">
          <div class="flex justify-center items-center h-full w-full">
             <!--<p class="text-6xl">First Lego League - Innovációs projekt</p>-->
-            <img src="https://coderina.org/wp-content/uploads/2023/08/FIRST-Lego-League-MASTERPIECE.png" class="w-60 h-12" @click="selectedCategory = 'all'" />
+            <img src="https://coderina.org/wp-content/uploads/2023/08/FIRST-Lego-League-MASTERPIECE.png" class="w-60 h-12"
+               @click="selectedCategory = 'all'" />
          </div>
 
          <div class="flex justify-center items-center h-full w-full">
             <p class="text-2xl">Látogatások: {{ userVisits }}</p>
          </div>
 
-         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click="selectedCategory = 'service'">
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue"
+            @click="selectedCategory = 'service'">
             <a class="text-2xl cursor-pointer pointer-events-none">Szerelés</a>
          </div>
          <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click="selectedCategory = 'test'">
             <a class="text-2xl cursor-pointer pointer-events-none">Teszt</a>
          </div>
-         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click="selectedCategory = 'rebuker'">
+         <div class="flex justify-center items-center h-full w-full hover:bg-yinblue"
+            @click="selectedCategory = 'rebuker'">
             <a class="text-2xl cursor-pointer pointer-events-none">Rebuker Kft</a>
          </div>
          <div class="flex justify-center items-center h-full w-full hover:bg-yinblue" @click="selectedCategory = 'images'">
@@ -538,6 +558,60 @@ export default {
             </div>
          </template>
       </div>
+
+      <!--Comments area-->
+      <div class="flex justify-center items-center w-full bg-richblack">
+         <div class="flex justify-center items-center w-full h-90p flex-col">
+
+            <div class="flex justify-center items-center flex-col basis-1/3 w-full h-full mt-8">
+
+               <div class="flex justify-center items-center w-full h-full basis-1/4">
+                  <input placeholder="Név"
+                     class="w-95p rounded-tl-2xl rounded-tr-2xl h-full text-2xl px-2 bg-indigodye text-platinum"
+                     v-model="nameInput" type="text">
+               </div>
+
+               <div class="flex justify-center items-center w-full h-full basis-2/4">
+                  <textarea placeholder="Ide írd az üzenetet" v-model="commentText"
+                     class="w-95p resize-none bg-yinblue outline-none p-2 h-full text-platinum" name="commentTextBoxN"
+                     id="commentTextBox"></textarea>
+               </div>
+
+               <div class="flex justify-center items-center w-full h-full basis-1/4">
+                  <button @click="sendComment"
+                     class="w-95p h-full bg-indigodye hover:bg-slate-700 rounded-bl-2xl rounded-br-2xl text-2xl text-platinum flex items-center justify-center">Küldés</button>
+               </div>
+            </div>
+
+            <div
+               class="flex flex-col justify-center items-center bg-silverlakeblue rounded-2xl h-full w-95p mt-8 mb-4">
+
+               <div
+                  class="w-full h-full flex justify-center items-center basis-1/4 bg-indigodye text-platinum rounded-tl-2xl rounded-tr-2xl">
+                  <h1 class="text-2xl">Amiket rólunk írtak</h1>
+               </div>
+
+               <div
+                  class="flex w-full flex-col flex-grow-0 h-full items-center justify-center basis-3/4 text-platinum overflow-x-auto">
+
+                  <div v-for="comment in outComments"
+                     class="flex flex-col justify-center items-center h-90p w-95p text-wrap p-2 flex-shrink-0 animate-fade">
+                     <div class="flex justify-between h-full items-center w-95p flex-col bg-oxfordblue rounded-2xl p-2">
+                        <div class="basis-5/6 flex justify-center w-full items-center text-center">
+                           <h1>{{ comment.text }}</h1>
+                        </div>
+                        <div class="basis-1/6 flex items-center justify-end w-full h-full mr-6">
+                           <h1 class="italic">-{{ comment.userName }}</h1>
+                        </div>
+                     </div>
+                  </div>
+
+               </div>
+
+            </div>
+
+         </div>
+      </div>
    </div>
 
    <!-- Normal screen -->
@@ -545,7 +619,8 @@ export default {
       <div class="grid grid-cols-12 h-16 w-full bg-richblack text-platinum">
          <div class="col-span-5 flex justify-start items-center">
             <!--<p class="text-2xl ml-6">First Lego League - Innovációs projekt</p>-->
-            <img src="https://coderina.org/wp-content/uploads/2023/08/FIRST-Lego-League-MASTERPIECE.png" class="w-60 h-12 ml-4 cursor-pointer" @click="selectedCategory = 'all'" />
+            <img src="https://coderina.org/wp-content/uploads/2023/08/FIRST-Lego-League-MASTERPIECE.png"
+               class="w-60 h-12 ml-4 cursor-pointer" @click="selectedCategory = 'all'" />
          </div>
 
          <div class="col-span-5 flex justify-end items-center">
@@ -646,41 +721,51 @@ export default {
             <div class="flex justify-center items-center flex-col basis-1/3 w-full h-full">
 
                <div class="flex justify-center items-center w-full h-full basis-1/4">
-                  <input placeholder="Név" class="w-95p rounded-tl-2xl rounded-tr-2xl h-full text-2xl px-2 bg-indigodye text-platinum" v-model="nameInput" type="text">
+                  <input placeholder="Név"
+                     class="w-95p rounded-tl-2xl rounded-tr-2xl h-full text-2xl px-2 bg-indigodye text-platinum"
+                     v-model="nameInput" type="text">
                </div>
 
                <div class="flex justify-center items-center w-full h-full basis-2/4">
-                  <textarea placeholder="Ide írd az üzenetet" v-model="commentText" class="w-95p resize-none bg-yinblue outline-none p-2 h-full text-platinum" name="commentTextBoxN" id="commentTextBox"></textarea>
+                  <textarea placeholder="Ide írd az üzenetet" v-model="commentText"
+                     class="w-95p resize-none bg-yinblue outline-none p-2 h-full text-platinum" name="commentTextBoxN"
+                     id="commentTextBox"></textarea>
                </div>
 
                <div class="flex justify-center items-center w-full h-full basis-1/4">
-                  <button @click="sendComment" class="w-95p h-full bg-indigodye hover:bg-slate-700 rounded-bl-2xl rounded-br-2xl text-2xl text-platinum flex items-center justify-center">Küldés</button>
+                  <button @click="sendComment"
+                     class="w-95p h-full bg-indigodye hover:bg-slate-700 rounded-bl-2xl rounded-br-2xl text-2xl text-platinum flex items-center justify-center">Küldés</button>
                </div>
 
 
             </div>
 
-            <!--This is the problematic part-->
-            <div class="flex flex-col justify-center items-center basis-2/3 bg-silverlakeblue rounded-2xl h-full w-full mr-4">
-               <div class="w-full h-full flex justify-center items-center basis-1/4 bg-indigodye text-platinum rounded-tl-2xl rounded-tr-2xl">
+            <div
+               class="flex flex-col justify-center items-center basis-2/3 bg-silverlakeblue rounded-2xl h-full w-full mr-4">
+
+               <div
+                  class="w-full h-full flex justify-center items-center basis-1/4 bg-indigodye text-platinum rounded-tl-2xl rounded-tr-2xl">
                   <h1 class="text-2xl">Amiket rólunk írtak</h1>
                </div>
 
-               <div class="flex max-w-full flex-grow-0 h-full items-center justify-center basis-3/4 text-platinum overflow-x-auto flex-wrap">
+               <div
+                  class="flex w-full flex-grow-0 h-full items-center justify-center basis-3/4 text-platinum overflow-x-auto">
 
-                  <div v-for="comment in comments" class="flex mx-2 flex-col justify-center items-center h-90p w-64 text-wrap bg-oxfordblue rounded-2xl p-2 flex-shrink-0">
-                     <div class="basis-5/6 flex justify-center items-center text-center">
-                        <h1>{{ comment.text }}</h1>
-                     </div>
-                     <div class="basis-1/6 flex items-center justify-end w-full h-full mr-6">
-                        <h1 class="italic">-{{ comment.userName }}</h1>
+                  <div v-for="comment in outComments"
+                     class="flex flex-col justify-center items-center h-90p w-1/3 text-wrap p-2 flex-shrink-0 animate-fade">
+                     <div class="flex justify-between h-full items-center w-95p flex-col bg-oxfordblue rounded-2xl p-2">
+                        <div class="basis-5/6 flex justify-center w-full items-center text-center">
+                           <h1>{{ comment.text }}</h1>
+                        </div>
+                        <div class="basis-1/6 flex items-center justify-end w-full h-full mr-6">
+                           <h1 class="italic">-{{ comment.userName }}</h1>
+                        </div>
                      </div>
                   </div>
 
                </div>
 
             </div>
-            <!--This is the end of the problematic part-->
 
          </div>
       </div>
